@@ -8,18 +8,17 @@ const DEFAULT_STATE = {
     ],
     events: [],
     coverageMatrix: {
-        "p1": "p2", // Zoe cubre a Fausto
-        "p2": "p1"  // Fausto cubre a Zoe
+        "p1": "p2", 
+        "p2": "p1"  
     },
-    confirmedCoverages: {}, // Key: YYYY-MM-DD_absentId -> covererId
+    confirmedCoverages: {}, 
     tasks: [],
     observations: [],
-    generatedDates: {} // Tracking auto-recurrent tasks instantiations
+    generatedDates: {} 
 };
 
 let state = JSON.parse(localStorage.getItem('DGFIS_STATE')) || DEFAULT_STATE;
 
-// Fallback logic for systems scaling additions gracefully
 if (!state.confirmedCoverages) state.confirmedCoverages = {};
 if (!state.generatedDates) state.generatedDates = {};
 
@@ -27,7 +26,6 @@ function saveState() {
     localStorage.setItem('DGFIS_STATE', JSON.stringify(state));
 }
 
-// Global System Utilities & Time Parsers
 function getTodayStr() {
     const d = new Date();
     return formatDateLocal(d);
@@ -42,7 +40,6 @@ function formatDateLocal(dateObj) {
 
 function getDayNameEs(dateStr) {
     const days = ['DOMINGO', 'LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO'];
-    // Avoid timezone offset sliding by splitting explicit parts
     const parts = dateStr.split('-');
     const d = new Date(parts[0], parts[1] - 1, parts[2]);
     return days[d.getDay()];
@@ -73,14 +70,13 @@ function triggerTabRender(tabName) {
     if (tabName === 'reportes') renderReports();
 }
 
-// Automatic Recurrent Tasks Automator Engine - ACTUALIZADO 2026
+// Automatic Recurrent Tasks Automator Engine - CORREGIDO Y ACTUALIZADO
 function runDailyRecurrentTasksAutomation(dateStr) {
-    if (state.generatedDates[dateStr]) return; // Detiene bucles de duplicación
+    if (state.generatedDates[dateStr]) return; 
     
     const dayName = getDayNameEs(dateStr);
     const generated = [];
 
-    // Validamos que sea un día laboral (Lunes a Viernes)
     const diasLaborales = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
     if (!diasLaborales.includes(dayName)) return;
 
@@ -139,7 +135,6 @@ function runDailyRecurrentTasksAutomation(dateStr) {
         }
     });
 
-    // Evitamos duplicados basándonos en la descripción de la tarea
     const seen = new Set();
     const uniqueTasks = generated.filter(t => {
         const duplicate = seen.has(t.desc);
@@ -151,7 +146,7 @@ function runDailyRecurrentTasksAutomation(dateStr) {
         state.tasks.push({
             id: 'tsk_' + Math.random().toString(36).substr(2, 9),
             description: t.desc,
-            taskGroup: t.team, // Vinculamos el grupo de tarea nativo al crearse
+            taskGroup: t.team, 
             responsibleId: "", 
             status: "Pendiente",
             priority: "Media",
@@ -164,7 +159,6 @@ function runDailyRecurrentTasksAutomation(dateStr) {
     saveState();
 }
 
-// Shared State Evaluation Logic: Absences detection engine
 function checkAbsenceStatus(personId, dateStr) {
     return state.events.find(ev => {
         return ev.personId === personId && 
@@ -174,7 +168,6 @@ function checkAbsenceStatus(personId, dateStr) {
     });
 }
 
-// Render Dashboard View Module
 function renderDashboard() {
     const today = getTodayStr();
     runDailyRecurrentTasksAutomation(today);
@@ -257,9 +250,9 @@ function renderDashboard() {
     document.getElementById('dash-presentes').innerText = presentes;
     document.getElementById('dash-ausentes').innerText = ausentes;
     document.getElementById('dash-coberturas').innerText = activeCoberturasCount;
+    document.getElementById('dash-tareas').innerText = pendingTasksCount;
     document.getElementById('dash-vacaciones').innerText = vancancionesCount;
     document.getElementById('dash-estudio').innerText = estudioCount;
-    document.getElementById('dash-tareas').innerText = pendingTasksCount;
     document.getElementById('dash-observaciones').innerText = obsMonthCount;
 
     document.getElementById('dashboard-cober-alerts').innerHTML = alertsHTML.join('');
@@ -267,10 +260,7 @@ function renderDashboard() {
 }
 
 function confirmSystemCoverage(dateStr, absentId, covererId) {
-    if (!covererId) {
-        alert("No hay una cobertura sugerida predefinida estructurada. Use la opción Modificar.");
-        return;
-    }
+    if (!covererId) { alert("No hay cobertura predefinida estructurada."); return; }
     const key = `${dateStr}_${absentId}`;
     state.confirmedCoverages[key] = covererId;
     saveState();
@@ -280,7 +270,7 @@ function confirmSystemCoverage(dateStr, absentId, covererId) {
 function promptManualCoverage(dateStr, absentId) {
     const key = `${dateStr}_${absentId}`;
     let options = state.people.filter(p => p.id !== absentId).map(p => `${p.id}: ${p.name}`).join('\n');
-    const choice = prompt(`Ingrese el ID de la persona responsable de la cobertura:\n\n${options}`);
+    const choice = prompt(`Ingrese el ID de la persona para la cobertura:\n\n${options}`);
     if (choice && state.people.some(p => p.id === choice)) {
         state.confirmedCoverages[key] = choice;
         saveState();
@@ -297,7 +287,6 @@ function clearConfirmedCoverage(dateStr, absentId) {
     renderDashboard();
 }
 
-// Render Team Module View
 function renderPeople() {
     const tbody = document.getElementById('table-people-body');
     tbody.innerHTML = '';
@@ -355,14 +344,13 @@ function savePersonForm() {
 }
 
 function deletePerson(id) {
-    if (confirm("¿Estás seguro de eliminar esta persona del equipo operativo?")) {
+    if (confirm("¿Estás seguro de eliminar esta persona?")) {
         state.people = state.people.filter(p => p.id !== id);
         saveState();
         renderPeople();
     }
 }
 
-// Visual Month Calendar Processing Layout Matrix
 let currentCalendarMonth = new Date().getMonth();
 let currentCalendarYear = new Date().getFullYear();
 
@@ -414,7 +402,6 @@ function renderCalendar() {
         const loopDateStr = `${currentCalendarYear}-${mFixed}-${dFixed}`;
 
         if (loopDateStr === todayStr) dayDiv.classList.add('today');
-
         dayDiv.innerHTML = `<span class="day-number">${day}</span>`;
 
         const dayEvents = state.events.filter(e => loopDateStr >= e.startDate && loopDateStr <= e.endDate);
@@ -439,7 +426,6 @@ function renderCalendar() {
     }
 }
 
-// Configurable Sugested Coverage Matrix Configuration Views
 function renderCoverageMatrixTab() {
     const container = document.getElementById('cober-matrix-inputs');
     container.innerHTML = '';
@@ -472,7 +458,7 @@ function saveCoverageMatrix() {
     alert("Matriz de coberturas guardada correctamente.");
 }
 
-// Tasks Matrix Controller - MODIFICADO CON SEPARACIÓN POR GRUPOS Y PRIORIDAD VARIABLE
+// CONTROL DE TAREAS DINÁMICO: SUBTABLAS POR EQUIPO Y PRIORIDAD MODIFICABLE
 let selectedTasksDate = getTodayStr();
 
 function renderTasks() {
@@ -483,16 +469,12 @@ function renderTasks() {
     runDailyRecurrentTasksAutomation(selectedTasksDate);
 
     const dayTasks = state.tasks.filter(t => t.date === selectedTasksDate);
-    const tbody = document.getElementById('table-tasks-body');
-    
-    // Si tu HTML aún usa un solo tbody común, limpiamos y reestructuramos dinámicamente el contenedor
-    const container = tbody.parentElement.parentElement; 
-    container.innerHTML = ''; // Reseteamos la vista para inyectar las tablas divididas por equipo
+    const container = document.getElementById('tasks-dynamic-container'); 
+    container.innerHTML = ''; 
 
     const grupos = ["DATOS Y REPORTING", "ANÁLISIS Y GESTIÓN", "PLANIFICACIÓN", "MANUALES O SIN GRUPO"];
 
     grupos.forEach(grupo => {
-        // Filtrar tareas que corresponden a este grupo
         const tareasDelGrupo = dayTasks.filter(t => {
             if (grupo === "MANUALES O SIN GRUPO") {
                 return !t.taskGroup || !["DATOS Y REPORTING", "ANÁLISIS Y GESTIÓN", "PLANIFICACIÓN"].includes(t.taskGroup);
@@ -500,16 +482,15 @@ function renderTasks() {
             return t.taskGroup === grupo;
         });
 
-        if (tareasDelGrupo.length === 0) return; // Si no hay tareas para este equipo hoy, no dibuja el bloque
+        if (tareasDelGrupo.length === 0) return; 
 
-        // Creamos la estructura visual para el grupo de tareas
         const groupSection = document.createElement('div');
         groupSection.className = 'task-group-container';
         groupSection.style.marginBottom = '2rem';
 
         groupSection.innerHTML = `
             <h3 style="color: var(--accent); border-bottom: 2px solid #30363d; padding-bottom: 0.5rem; margin-top: 1rem;">
-                📋 Grupo: ${grupo}
+                📋 Equipo: ${grupo}
             </h3>
             <table class="table" style="width:100%; text-align:left; margin-top: 0.5rem;">
                 <thead>
@@ -529,11 +510,10 @@ function renderTasks() {
         container.appendChild(groupSection);
         const groupTbody = document.getElementById(`tbody-group-${grupo.replace(/\s+/g, '-')}`);
 
-        // Inyectamos las filas de tareas correspondientes a este bloque
         tareasDelGrupo.forEach(t => {
             const tr = document.createElement('tr');
             
-            // Selector dinámico de Responsables
+            // Selector de Responsables
             let resSelect = `<select class="form-control form-control-sm" onchange="assignTaskResponsible('${t.id}', this.value)"><option value="">-- Sin Asignar --</option>`;
             state.people.forEach(p => {
                 const isSel = t.responsibleId === p.id ? 'selected' : '';
@@ -541,7 +521,7 @@ function renderTasks() {
             });
             resSelect += `</select>`;
 
-            // NUEVO: Selector de prioridad variable interactivo directo en la tabla
+            // SELECTOR DE PRIORIDAD VARIABLE INTERACTIVA DIRECTA
             let prioritySelect = `<select class="form-control form-control-sm" onchange="updateTaskPriority('${t.id}', this.value)" style="font-weight:bold;">`;
             ["Baja", "Media", "Alta"].forEach(prio => {
                 const isSel = (t.priority || "Media") === prio ? 'selected' : '';
@@ -549,7 +529,7 @@ function renderTasks() {
             });
             prioritySelect += `</select>`;
 
-            // Selector dinámico de Estados
+            // Selector de Estados
             let statusSelect = `<select class="form-control form-control-sm" onchange="updateTaskStatus('${t.id}', this.value)">`;
             ["Pendiente", "En curso", "Finalizada", "Observada"].forEach(st => {
                 const isSel = t.status === st ? 'selected' : '';
@@ -558,9 +538,9 @@ function renderTasks() {
             statusSelect += `</select>`;
 
             tr.innerHTML = `
-                <td style="width: 35%;"><strong>${t.description}</strong></td>
+                <td style="width: 38%;"><strong>${t.description}</strong></td>
                 <td>${resSelect}</td>
-                <td><span class="priority-badge ${(t.priority || 'Media').toLowerCase()}">${prioritySelect}</span></td>
+                <td>${prioritySelect}</td>
                 <td><span class="status-badge ${t.status.toLowerCase().replace(' ', '-')}">${statusSelect}</span></td>
                 <td><span style="font-size:0.75rem; color:var(--text-secondary);">${t.isRecurrent ? 'Recurrente' : 'Manual'}</span></td>
                 <td>
@@ -572,38 +552,29 @@ function renderTasks() {
         });
     });
 
-    // Si no hay ninguna tarea cargada para el día completo
     if (dayTasks.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding: 3rem; color: var(--text-secondary); font-style: italic;">No hay tareas programadas para esta fecha.</div>`;
     }
 
-    // Reenganchar el listener del input de fecha para no perder la reactividad
     dInput.onchange = () => { selectedTasksDate = dInput.value; renderTasks(); };
 }
 
 function assignTaskResponsible(taskId, val) {
     const t = state.tasks.find(x => x.id === taskId);
-    if (t) {
-        t.responsibleId = val;
-        saveState();
-    }
+    if (t) { t.responsibleId = val; saveState(); }
 }
 
 function updateTaskStatus(taskId, val) {
     const t = state.tasks.find(x => x.id === taskId);
-    if (t) {
-        t.status = val;
-        saveState();
-    }
+    if (t) { t.status = val; saveState(); }
 }
 
-// NUEVA FUNCIÓN: Guarda el cambio de prioridad directo desde la tabla
 function updateTaskPriority(taskId, val) {
     const t = state.tasks.find(x => x.id === taskId);
     if (t) {
         t.priority = val;
         saveState();
-        renderTasks(); // Renderizamos para aplicar estilos visuales si corresponden
+        renderTasks(); 
     }
 }
 
@@ -656,7 +627,7 @@ function saveTaskForm() {
         state.tasks.push({
             id: 'tsk_' + Math.random().toString(36).substr(2, 9),
             description, 
-            taskGroup: "MANUALES O SIN GRUPO", // Destino por defecto para creadas a mano
+            taskGroup: "MANUALES O SIN GRUPO", 
             responsibleId, priority, status, date, isRecurrent: false
         });
     }
@@ -666,7 +637,7 @@ function saveTaskForm() {
 }
 
 function deleteTask(id) {
-    if (confirm("¿Estás seguro de eliminar esta tarea del registro diario?")) {
+    if (confirm("¿Estás seguro de eliminar esta tarea?")) {
         state.tasks = state.tasks.filter(x => x.id !== id);
         saveState();
         renderTasks();
@@ -691,7 +662,7 @@ function openEventModal(id = '') {
         document.getElementById('event-end').value = ev.endDate;
         document.getElementById('event-obs').value = ev.observations || '';
     } else {
-        document.getElementById('event-modal-title').innerText = "Cargar Evento";
+        document.getElementById('event-modal-title').innerText = "Cargar Novedad";
         document.getElementById('btn-del-event').style.display = 'none';
         document.getElementById('event-id').value = '';
         document.getElementById('event-start').value = getTodayStr();
@@ -710,7 +681,7 @@ function saveEventForm() {
     const observations = document.getElementById('event-obs').value.trim();
 
     if (!personId || !startDate || !endDate) { alert("Complete los campos requeridos"); return; }
-    if (startDate > endDate) { alert("La fecha de inicio no puede ser posterior a la fecha de fin"); return; }
+    if (startDate > endDate) { alert("La fecha de inicio no puede ser posterior"); return; }
 
     if (id) {
         const ev = state.events.find(x => x.id === id);
@@ -730,21 +701,10 @@ function saveEventForm() {
     renderCalendar();
 }
 
-function deleteEventClick() {
-    const id = document.getElementById('event-id').value;
-    if (id && confirm("¿Eliminar este registro del calendario?")) {
-        state.events = state.events.filter(x => x.id !== id);
-        saveState();
-        closeModal('modal-event');
-        renderCalendar();
-    }
-}
-
-// Observations Engine Feature Layout
+// Observaciones Engine Feature
 function renderObservations() {
     const tbody = document.getElementById('table-obs-body');
     tbody.innerHTML = '';
-    
     state.observations.sort((a,b) => b.date.localeCompare(a.date)).forEach(o => {
         const person = state.people.find(p => p.id === o.personId);
         const name = person ? person.name : 'Desconocido';
@@ -762,14 +722,11 @@ function renderObservations() {
 function openObservationModal() {
     const modal = document.getElementById('modal-observation');
     const oSel = document.getElementById('obs-person');
-    
     oSel.innerHTML = '';
     state.people.forEach(p => oSel.add(new Option(p.name, p.id)));
-    
     document.getElementById('obs-id').value = '';
     document.getElementById('obs-date').value = getTodayStr();
     document.getElementById('obs-text').value = '';
-    
     modal.classList.add('active');
 }
 
@@ -777,14 +734,8 @@ function saveObservationForm() {
     const date = document.getElementById('obs-date').value;
     const personId = document.getElementById('obs-person').value;
     const text = document.getElementById('obs-text').value.trim();
-
-    if (!date || !personId || !text) { alert("Rellene todos los campos de la observación."); return; }
-
-    state.observations.push({
-        id: 'obs_' + Math.random().toString(36).substr(2, 9),
-        date, personId, text
-    });
-    
+    if (!date || !personId || !text) { alert("Rellene todos los campos."); return; }
+    state.observations.push({ id: 'obs_' + Math.random().toString(36).substr(2, 9), date, personId, text });
     saveState();
     closeModal('modal-observation');
     renderObservations();
@@ -798,7 +749,7 @@ function deleteObservation(id) {
     }
 }
 
-// Unified Track Audit History Timeline View Filter
+// Historial y Auditoría
 function renderHistory() {
     const pFilter = document.getElementById('seg-filter-person').value;
     const dFilter = document.getElementById('seg-filter-date').value;
@@ -811,7 +762,6 @@ function renderHistory() {
 
     const tbody = document.getElementById('table-history-body');
     tbody.innerHTML = '';
-
     const trackingList = [];
 
     state.tasks.forEach(t => {
@@ -827,13 +777,12 @@ function renderHistory() {
         trackingList.push({
             date: e.startDate,
             type: `Novedad (${e.type})`,
-            detail: `Fin planeado: ${e.endDate}. Notas: ${e.observations || 'Sin observaciones'}`,
+            detail: `Fin planeado: ${e.endDate}. Notas: ${e.observations || 'Sin obs'}`,
             personId: e.personId
         });
     });
 
     trackingList.sort((a,b) => b.date.localeCompare(a.date));
-
     const filtered = trackingList.filter(item => {
         if (pFilter && item.personId !== pFilter) return false;
         if (dFilter && item.date !== dFilter) return false;
@@ -842,7 +791,7 @@ function renderHistory() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); font-style:italic;">No hay registros históricos con los filtros actuales.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-secondary); font-style:italic;">Sin registros históricos.</td></tr>`;
         return;
     }
 
@@ -871,11 +820,10 @@ function clearFilters() {
     renderHistory();
 }
 
-// Analytical Metrics Dashboard Reports Calculations Engine
+// Reportes KPI
 function renderReports() {
     const mInput = document.getElementById('report-month-filter');
     if (!mInput.value) mInput.value = getTodayStr().substring(0, 7);
-    
     const targetMonth = mInput.value; 
     const tbody = document.getElementById('table-reports-body');
     tbody.innerHTML = '';
@@ -909,11 +857,20 @@ function renderReports() {
         `;
         tbody.appendChild(tr);
     });
-
     mInput.onchange = renderReports;
 }
 
-// Data Portability Hub & Sync Managers
+function deleteEventClick() {
+    const id = document.getElementById('event-id').value;
+    if (id && confirm("¿Eliminar este registro?")) {
+        state.events = state.events.filter(x => x.id !== id);
+        saveState();
+        closeModal('modal-event');
+        renderCalendar();
+    }
+}
+
+// Portabilidad Hub
 function exportJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -924,24 +881,21 @@ function exportJSON() {
     downloadAnchor.remove();
 }
 
-// Importación Inteligente Adaptativa con Soporte de Retrocompatibilidad (Asigna grupos faltantes si usás un JSON viejo)
 function importJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
             const parsed = JSON.parse(e.target.result);
             if (parsed.people && parsed.tasks) {
-                // Parche inteligente de migración para inyectar grupos ausentes a tareas viejas
                 parsed.tasks.forEach(t => {
                     if(!t.taskGroup) {
-                        if (t.description.includes("CABLEADO") || t.description.includes("SLA") || t.description.includes("REPORTING") || t.description.includes("DRIVES")) {
+                        if (t.description.includes("CABLEADO") || t.description.includes("SLA") || t.description.includes("REPORTING")) {
                             t.taskGroup = "DATOS Y REPORTING";
                         } else if (t.description.includes("BAJADAS") || t.description.includes("CUCC") || t.description.includes("BACKOFFICE")) {
                             t.taskGroup = "ANÁLISIS Y GESTIÓN";
-                        } else if (t.description.includes("GASTRONÓMICAS") || t.description.includes("GASTRONOMICAS") || t.description.includes("PLANIFICACION")) {
+                        } else if (t.description.includes("GASTRONÓMICAS") || t.description.includes("PLANIFICACION")) {
                             t.taskGroup = "PLANIFICACIÓN";
                         } else {
                             t.taskGroup = "MANUALES O SIN GRUPO";
@@ -950,14 +904,10 @@ function importJSON(event) {
                 });
                 state = parsed;
                 saveState();
-                alert("Respaldo JSON importado y sincronizado correctamente con éxito.");
+                alert("Respaldo importado con éxito.");
                 location.reload();
-            } else {
-                alert("Estructura de archivo JSON no válida para el sistema.");
-            }
-        } catch (err) {
-            alert("Error al parsear el archivo JSON cargado.");
-        }
+            } else { alert("Estructura JSON no válida."); }
+        } catch (err) { alert("Error al parsear el archivo."); }
     };
     reader.readAsText(file);
 }
@@ -965,37 +915,25 @@ function importJSON(event) {
 function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "ID Tarea,Fecha,Grupo,Descripcion,Responsable,Prioridad,Estado,Origen\n";
-
     state.tasks.forEach(t => {
         const p = state.people.find(pe => pe.id === t.responsibleId);
         const name = p ? p.name : "Sin Asignar";
-        const row = [
-            t.id,
-            t.date,
-            t.taskGroup || "Manual",
-            `"${t.description.replace(/"/g, '""')}"`,
-            name,
-            t.priority || "Media",
-            t.status,
-            t.isRecurrent ? 'Recurrente' : 'Manual'
-        ].join(",");
+        const row = [t.id, t.date, t.taskGroup || "Manual", `"${t.description.replace(/"/g, '""')}"`, name, t.priority || "Media", t.status, t.isRecurrent ? 'Recurrente' : 'Manual'].join(",");
         csvContent += row + "\n";
     });
-
     const encodedUri = encodeURI(csvContent);
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", encodedUri);
-    downloadAnchor.setAttribute("download", `DGFIS_Matriz_Tareas_${getTodayStr()}.csv`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const anchor = document.createElement('a');
+    anchor.setAttribute("href", encodedUri);
+    anchor.setAttribute("download", `DGFIS_Matriz_Tareas_${getTodayStr()}.csv`);
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
 }
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
 }
 
-// Initial Core Activation App Setup
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('current-date-display').innerText = getTodayStr().split('-').reverse().join('/');
     renderDashboard();
