@@ -88,80 +88,71 @@ function runDailyRecurrentTasksAutomation(dateStr) {
         // --- ÁREA: DATOS Y REPORTING ---
         if (person.team === "DATOS Y REPORTING") {
             if (dayName === "LUNES") {
-                generated.push(
-                    "CABLEADO", 
-                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
-                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
-                    "AUDITORÍA ORDENAMIENTO", 
-                    "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO"
-                );
+                generated.push({ desc: "CABLEADO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "EXPEDIENTES LEGALES – ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZAR SLA - CONTROL PENDIENTES", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "AUDITORÍA ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO", team: "DATOS Y REPORTING" });
             } else if (dayName === "MARTES") {
-                generated.push(
-                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
-                    "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", 
-                    "ACTUALIZACIÓN NUEVA COBERTURA", 
-                    "PENDIENTES ORDENAMIENTO", 
-                    "ENVIAR PENDIENTES A ORDENAMIENTO ( LO QUE SE PLANIFICO EL VIERNES Y MIERCOLES)"
-                );
+                generated.push({ desc: "ACTUALIZAR SLA - CONTROL PENDIENTES", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZACIÓN NUEVA COBERTURA", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "PENDIENTES ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ENVIAR PENDIENTES A ORDENAMIENTO ( LO QUE SE PLANIFICO EL VIERNES Y MIERCOLES)", team: "DATOS Y REPORTING" });
             } else if (dayName === "MIÉRCOLES") {
-                generated.push(
-                    "CABLEADO", 
-                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
-                    "REVISION DE DRIVES", 
-                    "REPORTE SEMANAL"
-                );
+                generated.push({ desc: "CABLEADO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "EXPEDIENTES LEGALES – ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "REVISION DE DRIVES", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "REPORTE SEMANAL", team: "DATOS Y REPORTING" });
             } else if (dayName === "JUEVES") {
-                generated.push(
-                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
-                    "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", 
-                    "PENDIENTES ORDENAMIENTO", 
-                    "BASE GOIEP SEMANAL", 
-                    "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO", 
-                    "ENVIAR PENDIENTES A ORDENAMIENTO (LO QUE SE PLANIFICO EL LUNES)"
-                );
+                generated.push({ desc: "ACTUALIZAR SLA - CONTROL PENDIENTES", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "PENDIENTES ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "BASE GOIEP SEMANAL", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "ENVIAR PENDIENTES A ORDENAMIENTO (LO QUE SE PLANIFICO EL LUNES)", team: "DATOS Y REPORTING" });
             } else if (dayName === "VIERNES") {
-                generated.push(
-                    "CABLEADO", 
-                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
-                    "COLUMNAS Y POSTE EXPEDIENTE", 
-                    "COBERTURA CABLEADO (ENVIO POR WHATSSAP)", 
-                    "COBERTURA DE EXPEDIENTES"
-                );
+                generated.push({ desc: "CABLEADO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "EXPEDIENTES LEGALES – ORDENAMIENTO", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "COLUMNAS Y POSTE EXPEDIENTE", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "COBERTURA CABLEADO (ENVIO POR WHATSSAP)", team: "DATOS Y REPORTING" });
+                generated.push({ desc: "COBERTURA DE EXPEDIENTES", team: "DATOS Y REPORTING" });
             }
         }
         
-        // --- ÁREA: ANÁLISIS Y GESTIÓN (Lunes a Viernes las mismas 4 tareas) ---
+        // --- ÁREA: ANÁLISIS Y GESTIÓN ---
         if (person.team === "ANÁLISIS Y GESTIÓN") {
-            generated.push(
-                "BAJADAS 2026", 
-                "CUCC", 
-                "ACTUALIZAR BACKOFFICE MAÑANA", 
-                "ACTUALIZAR BACKOFFICE TARDE"
-            );
+            generated.push({ desc: "BAJADAS 2026", team: "ANÁLISIS Y GESTIÓN" });
+            generated.push({ desc: "CUCC", team: "ANÁLISIS Y GESTIÓN" });
+            generated.push({ desc: "ACTUALIZAR BACKOFFICE MAÑANA", team: "ANÁLISIS Y GESTIÓN" });
+            generated.push({ desc: "ACTUALIZAR BACKOFFICE TARDE", team: "ANÁLISIS Y GESTIÓN" });
         }
 
         // --- ÁREA: PLANIFICACIÓN ---
         if (person.team === "PLANIFICACIÓN") {
             if (["LUNES", "MIÉRCOLES", "VIERNES"].includes(dayName)) {
-                generated.push(
-                    "PLANIFICACIÓN ÁREAS GASTRONÓMICAS", 
-                    "PLANIFICACION ORDENAMIENTO"
-                );
+                generated.push({ desc: "PLANIFICACIÓN ÁREAS GASTRONÓMICAS", team: "PLANIFICACIÓN" });
+                generated.push({ desc: "PLANIFICACION ORDENAMIENTO", team: "PLANIFICACIÓN" });
             } else if (["MARTES", "JUEVES"].includes(dayName)) {
-                generated.push(
-                    "PLANIFICACIÓN ÁREAS GASTRONÓMICAS"
-                );
+                generated.push({ desc: "PLANIFICACIÓN ÁREAS GASTRONÓMICAS", team: "PLANIFICACIÓN" });
             }
         }
     });
 
-    // Filtramos duplicados por si hay más de una persona en la misma área
-    const uniqueTasks = [...new Set(generated)];
-    uniqueTasks.forEach(desc => {
+    // Evitamos duplicados basándonos en la descripción de la tarea
+    const seen = new Set();
+    const uniqueTasks = generated.filter(t => {
+        const duplicate = seen.has(t.desc);
+        seen.add(t.desc);
+        return !duplicate;
+    });
+
+    uniqueTasks.forEach(t => {
         state.tasks.push({
             id: 'tsk_' + Math.random().toString(36).substr(2, 9),
-            description: desc,
-            responsibleId: "", // Strict rule: MUST be instantiated completely unassigned
+            description: t.desc,
+            taskGroup: t.team, // Vinculamos el grupo de tarea nativo al crearse
+            responsibleId: "", 
             status: "Pendiente",
             priority: "Media",
             date: dateStr,
@@ -218,7 +209,6 @@ function renderDashboard() {
                 </div>
             `);
 
-            // If coverage isn't confirmed yet, output action card layout
             if (!confirmedCovererId) {
                 const suggestedId = state.coverageMatrix[p.id] || "";
                 const suggestedPerson = state.people.find(pe => pe.id === suggestedId);
@@ -257,7 +247,6 @@ function renderDashboard() {
         }
     });
 
-    // Computing advanced metrics lookaheads
     const vancancionesCount = state.events.filter(e => e.type === "Vacaciones" && e.startDate >= today).length;
     const estudioCount = state.events.filter(e => e.type === "Día de estudio" && e.startDate >= today).length;
     const pendingTasksCount = state.tasks.filter(t => t.date === today && t.status !== "Finalizada").length;
@@ -265,7 +254,6 @@ function renderDashboard() {
     const currentMonthStr = today.substring(0, 7);
     const obsMonthCount = state.observations.filter(o => o.date.substring(0, 7) === currentMonthStr).length;
 
-    // Output fields maps variables to DOM
     document.getElementById('dash-presentes').innerText = presentes;
     document.getElementById('dash-ausentes').innerText = ausentes;
     document.getElementById('dash-coberturas').innerText = activeCoberturasCount;
@@ -409,7 +397,6 @@ function renderCalendar() {
     const totalDays = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
     const prevTotalDays = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
 
-    // Render preceding days from adjacent month
     for (let i = firstDayIndex; i > 0; i--) {
         const dayDiv = document.createElement('div');
         dayDiv.className = 'calendar-day other-month';
@@ -417,7 +404,6 @@ function renderCalendar() {
         grid.appendChild(dayDiv);
     }
 
-    // Active calendar target loop iteration processing
     const todayStr = getTodayStr();
     for (let day = 1; day <= totalDays; day++) {
         const dayDiv = document.createElement('div');
@@ -431,7 +417,6 @@ function renderCalendar() {
 
         dayDiv.innerHTML = `<span class="day-number">${day}</span>`;
 
-        // Render matching operational event badges mapping bounds
         const dayEvents = state.events.filter(e => loopDateStr >= e.startDate && loopDateStr <= e.endDate);
         dayEvents.forEach(ev => {
             const b = document.createElement('div');
@@ -487,7 +472,7 @@ function saveCoverageMatrix() {
     alert("Matriz de coberturas guardada correctamente.");
 }
 
-// Tasks Matrix Controller
+// Tasks Matrix Controller - MODIFICADO CON SEPARACIÓN POR GRUPOS Y PRIORIDAD VARIABLE
 let selectedTasksDate = getTodayStr();
 
 function renderTasks() {
@@ -497,43 +482,102 @@ function renderTasks() {
     selectedTasksDate = dInput.value;
     runDailyRecurrentTasksAutomation(selectedTasksDate);
 
-    // Filter tasks exactly by targeting operational date standard scope
     const dayTasks = state.tasks.filter(t => t.date === selectedTasksDate);
     const tbody = document.getElementById('table-tasks-body');
-    tbody.innerHTML = '';
+    
+    // Si tu HTML aún usa un solo tbody común, limpiamos y reestructuramos dinámicamente el contenedor
+    const container = tbody.parentElement.parentElement; 
+    container.innerHTML = ''; // Reseteamos la vista para inyectar las tablas divididas por equipo
 
-    dayTasks.forEach(t => {
-        const tr = document.createElement('tr');
-        
-        // Build dynamic flexible interactive dropdown options list selectors cleanly
-        let resSelect = `<select class="form-control form-control-sm" onchange="assignTaskResponsible('${t.id}', this.value)"><option value="">-- Sin Asignar --</option>`;
-        state.people.forEach(p => {
-            const isSel = t.responsibleId === p.id ? 'selected' : '';
-            resSelect += `<option value="${p.id}" ${isSel}>${p.name}</option>`;
+    const grupos = ["DATOS Y REPORTING", "ANÁLISIS Y GESTIÓN", "PLANIFICACIÓN", "MANUALES O SIN GRUPO"];
+
+    grupos.forEach(grupo => {
+        // Filtrar tareas que corresponden a este grupo
+        const tareasDelGrupo = dayTasks.filter(t => {
+            if (grupo === "MANUALES O SIN GRUPO") {
+                return !t.taskGroup || !["DATOS Y REPORTING", "ANÁLISIS Y GESTIÓN", "PLANIFICACIÓN"].includes(t.taskGroup);
+            }
+            return t.taskGroup === grupo;
         });
-        resSelect += `</select>`;
 
-        let statusSelect = `<select class="form-control form-control-sm" onchange="updateTaskStatus('${t.id}', this.value)">`;
-        ["Pendiente", "En curso", "Finalizada", "Observada"].forEach(st => {
-            const isSel = t.status === st ? 'selected' : '';
-            statusSelect += `<option value="${st}" ${isSel}>${st}</option>`;
-        });
-        statusSelect += `</select>`;
+        if (tareasDelGrupo.length === 0) return; // Si no hay tareas para este equipo hoy, no dibuja el bloque
 
-        tr.innerHTML = `
-            <td><strong>${t.description}</strong></td>
-            <td>${resSelect}</td>
-            <td><span class="priority-badge ${t.priority}">${t.priority}</span></td>
-            <td><span class="status-badge ${t.status.toLowerCase().replace(' ', '-')}">${statusSelect}</span></td>
-            <td><span style="font-size:0.75rem; color:var(--text-secondary);">${t.isRecurrent ? 'Recurrente' : 'Manual'}</span></td>
-            <td>
-                <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${t.id}')">Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Eliminar</button>
-            </td>
+        // Creamos la estructura visual para el grupo de tareas
+        const groupSection = document.createElement('div');
+        groupSection.className = 'task-group-container';
+        groupSection.style.marginBottom = '2rem';
+
+        groupSection.innerHTML = `
+            <h3 style="color: var(--accent); border-bottom: 2px solid #30363d; padding-bottom: 0.5rem; margin-top: 1rem;">
+                📋 Grupo: ${grupo}
+            </h3>
+            <table class="table" style="width:100%; text-align:left; margin-top: 0.5rem;">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Responsable</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
+                        <th>Origen</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-group-${grupo.replace(/\s+/g, '-')}"></tbody>
+            </table>
         `;
-        tbody.appendChild(tr);
+
+        container.appendChild(groupSection);
+        const groupTbody = document.getElementById(`tbody-group-${grupo.replace(/\s+/g, '-')}`);
+
+        // Inyectamos las filas de tareas correspondientes a este bloque
+        tareasDelGrupo.forEach(t => {
+            const tr = document.createElement('tr');
+            
+            // Selector dinámico de Responsables
+            let resSelect = `<select class="form-control form-control-sm" onchange="assignTaskResponsible('${t.id}', this.value)"><option value="">-- Sin Asignar --</option>`;
+            state.people.forEach(p => {
+                const isSel = t.responsibleId === p.id ? 'selected' : '';
+                resSelect += `<option value="${p.id}" ${isSel}>${p.name}</option>`;
+            });
+            resSelect += `</select>`;
+
+            // NUEVO: Selector de prioridad variable interactivo directo en la tabla
+            let prioritySelect = `<select class="form-control form-control-sm" onchange="updateTaskPriority('${t.id}', this.value)" style="font-weight:bold;">`;
+            ["Baja", "Media", "Alta"].forEach(prio => {
+                const isSel = (t.priority || "Media") === prio ? 'selected' : '';
+                prioritySelect += `<option value="${prio}" ${isSel}>${prio}</option>`;
+            });
+            prioritySelect += `</select>`;
+
+            // Selector dinámico de Estados
+            let statusSelect = `<select class="form-control form-control-sm" onchange="updateTaskStatus('${t.id}', this.value)">`;
+            ["Pendiente", "En curso", "Finalizada", "Observada"].forEach(st => {
+                const isSel = t.status === st ? 'selected' : '';
+                statusSelect += `<option value="${st}" ${isSel}>${st}</option>`;
+            });
+            statusSelect += `</select>`;
+
+            tr.innerHTML = `
+                <td style="width: 35%;"><strong>${t.description}</strong></td>
+                <td>${resSelect}</td>
+                <td><span class="priority-badge ${(t.priority || 'Media').toLowerCase()}">${prioritySelect}</span></td>
+                <td><span class="status-badge ${t.status.toLowerCase().replace(' ', '-')}">${statusSelect}</span></td>
+                <td><span style="font-size:0.75rem; color:var(--text-secondary);">${t.isRecurrent ? 'Recurrente' : 'Manual'}</span></td>
+                <td>
+                    <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${t.id}')">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTask('${t.id}')">Eliminar</button>
+                </td>
+            `;
+            groupTbody.appendChild(tr);
+        });
     });
 
+    // Si no hay ninguna tarea cargada para el día completo
+    if (dayTasks.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 3rem; color: var(--text-secondary); font-style: italic;">No hay tareas programadas para esta fecha.</div>`;
+    }
+
+    // Reenganchar el listener del input de fecha para no perder la reactividad
     dInput.onchange = () => { selectedTasksDate = dInput.value; renderTasks(); };
 }
 
@@ -553,6 +597,16 @@ function updateTaskStatus(taskId, val) {
     }
 }
 
+// NUEVA FUNCIÓN: Guarda el cambio de prioridad directo desde la tabla
+function updateTaskPriority(taskId, val) {
+    const t = state.tasks.find(x => x.id === taskId);
+    if (t) {
+        t.priority = val;
+        saveState();
+        renderTasks(); // Renderizamos para aplicar estilos visuales si corresponden
+    }
+}
+
 function openTaskModal(id = '') {
     const modal = document.getElementById('modal-task');
     const rSel = document.getElementById('task-responsible');
@@ -566,7 +620,7 @@ function openTaskModal(id = '') {
         document.getElementById('task-id').value = t.id;
         document.getElementById('task-desc').value = t.description;
         document.getElementById('task-responsible').value = t.responsibleId;
-        document.getElementById('task-priority').value = t.priority;
+        document.getElementById('task-priority').value = t.priority || "Media";
         document.getElementById('task-status').value = t.status;
         document.getElementById('task-date').value = t.date;
     } else {
@@ -601,7 +655,9 @@ function saveTaskForm() {
     } else {
         state.tasks.push({
             id: 'tsk_' + Math.random().toString(36).substr(2, 9),
-            description, responsibleId, priority, status, date, isRecurrent: false
+            description, 
+            taskGroup: "MANUALES O SIN GRUPO", // Destino por defecto para creadas a mano
+            responsibleId, priority, status, date, isRecurrent: false
         });
     }
     saveState();
@@ -748,7 +804,6 @@ function renderHistory() {
     const dFilter = document.getElementById('seg-filter-date').value;
     const mFilter = document.getElementById('seg-filter-month').value;
 
-    // Repopulate dynamic selection listings if unbuilt
     const pSelect = document.getElementById('seg-filter-person');
     if (pSelect.options.length <= 1) {
         state.people.forEach(p => pSelect.add(new Option(p.name, p.id)));
@@ -759,7 +814,6 @@ function renderHistory() {
 
     const trackingList = [];
 
-    // Push task mutations tracking rows
     state.tasks.forEach(t => {
         trackingList.push({
             date: t.date,
@@ -769,7 +823,6 @@ function renderHistory() {
         });
     });
 
-    // Push active occurrences logs
     state.events.forEach(e => {
         trackingList.push({
             date: e.startDate,
@@ -779,10 +832,8 @@ function renderHistory() {
         });
     });
 
-    // Sorting algorithm outputs chronologically descending
     trackingList.sort((a,b) => b.date.localeCompare(a.date));
 
-    // Dynamic stream filters execution
     const filtered = trackingList.filter(item => {
         if (pFilter && item.personId !== pFilter) return false;
         if (dFilter && item.date !== dFilter) return false;
@@ -808,7 +859,6 @@ function renderHistory() {
         tbody.appendChild(tr);
     });
 
-    // Wire real-time reactivity inputs mapping updates dynamically
     document.getElementById('seg-filter-person').onchange = renderHistory;
     document.getElementById('seg-filter-date').onchange = renderHistory;
     document.getElementById('seg-filter-month').onchange = renderHistory;
@@ -826,25 +876,21 @@ function renderReports() {
     const mInput = document.getElementById('report-month-filter');
     if (!mInput.value) mInput.value = getTodayStr().substring(0, 7);
     
-    const targetMonth = mInput.value; // Format expected YYYY-MM
+    const targetMonth = mInput.value; 
     const tbody = document.getElementById('table-reports-body');
     tbody.innerHTML = '';
 
     state.people.forEach(p => {
-        // Calculate assigned tasks for specific person and month bounds
         const monthTasks = state.tasks.filter(t => t.responsibleId === p.id && t.date.substring(0, 7) === targetMonth);
         const totalAssigned = monthTasks.length;
         const totalCompleted = monthTasks.filter(t => t.status === "Finalizada").length;
         const compliancePct = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
 
-        // Count calendar incidents matches
         const absences = state.events.filter(e => e.personId === p.id && ["Vacaciones", "Licencia"].includes(e.type) && e.startDate.substring(0, 7) === targetMonth).length;
         const studyDays = state.events.filter(e => e.personId === p.id && e.type === "Día de estudio" && e.startDate.substring(0, 7) === targetMonth).length;
 
-        // Calculate count of transactional active coverages executed successfully
         let coveragesDone = 0;
         Object.keys(state.confirmedCoverages).forEach(key => {
-            // key layout structure expected: YYYY-MM-DD_absentId
             const datePart = key.split('_')[0];
             if (datePart.substring(0, 7) === targetMonth && state.confirmedCoverages[key] === p.id) {
                 coveragesDone++;
@@ -878,6 +924,7 @@ function exportJSON() {
     downloadAnchor.remove();
 }
 
+// Importación Inteligente Adaptativa con Soporte de Retrocompatibilidad (Asigna grupos faltantes si usás un JSON viejo)
 function importJSON(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -887,6 +934,20 @@ function importJSON(event) {
         try {
             const parsed = JSON.parse(e.target.result);
             if (parsed.people && parsed.tasks) {
+                // Parche inteligente de migración para inyectar grupos ausentes a tareas viejas
+                parsed.tasks.forEach(t => {
+                    if(!t.taskGroup) {
+                        if (t.description.includes("CABLEADO") || t.description.includes("SLA") || t.description.includes("REPORTING") || t.description.includes("DRIVES")) {
+                            t.taskGroup = "DATOS Y REPORTING";
+                        } else if (t.description.includes("BAJADAS") || t.description.includes("CUCC") || t.description.includes("BACKOFFICE")) {
+                            t.taskGroup = "ANÁLISIS Y GESTIÓN";
+                        } else if (t.description.includes("GASTRONÓMICAS") || t.description.includes("GASTRONOMICAS") || t.description.includes("PLANIFICACION")) {
+                            t.taskGroup = "PLANIFICACIÓN";
+                        } else {
+                            t.taskGroup = "MANUALES O SIN GRUPO";
+                        }
+                    }
+                });
                 state = parsed;
                 saveState();
                 alert("Respaldo JSON importado y sincronizado correctamente con éxito.");
@@ -903,7 +964,7 @@ function importJSON(event) {
 
 function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID Tarea,Fecha,Descripcion,Responsable,Prioridad,Estado,Origen\n";
+    csvContent += "ID Tarea,Fecha,Grupo,Descripcion,Responsable,Prioridad,Estado,Origen\n";
 
     state.tasks.forEach(t => {
         const p = state.people.find(pe => pe.id === t.responsibleId);
@@ -911,9 +972,10 @@ function exportCSV() {
         const row = [
             t.id,
             t.date,
+            t.taskGroup || "Manual",
             `"${t.description.replace(/"/g, '""')}"`,
             name,
-            t.priority,
+            t.priority || "Media",
             t.status,
             t.isRecurrent ? 'Recurrente' : 'Manual'
         ].join(",");
@@ -929,7 +991,6 @@ function exportCSV() {
     downloadAnchor.remove();
 }
 
-// Global Interfaces Closures Utility
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
 }
