@@ -374,7 +374,7 @@ function saveCoverageMatrix() {
 }
 
 // ==========================================
-// CONTROL DE TAREAS: SEPARACIÓN REAL POR CUADROS DE PERSONAS
+// CONTROL DE TAREAS: SEPARACIÓN REAL POR CUADROS (OCULTANDO FINALIZADAS)
 // ==========================================
 let selectedTasksDate = getTodayStr();
 
@@ -385,7 +385,9 @@ function renderTasks() {
     selectedTasksDate = dInput.value;
     runDailyRecurrentTasksAutomation(selectedTasksDate);
 
-    const dayTasks = state.tasks.filter(t => t.date === selectedTasksDate);
+    // FILTRO CLAVE: Se obtienen las tareas del día pero se EXCLUYEN por completo las "Finalizada"
+    const dayTasks = state.tasks.filter(t => t.date === selectedTasksDate && t.status !== "Finalizada");
+    
     const container = document.getElementById('tasks-dynamic-container'); 
     container.innerHTML = ''; 
 
@@ -470,7 +472,7 @@ function renderTasks() {
             ["Baja", "Media", "Alta"].forEach(prio => prioritySelect += `<option value="${prio}" ${(t.priority || "Media") === prio ? 'selected' : ''}>${prio}</option>`);
             prioritySelect += `</select>`;
 
-            let statusSelect = `<select class="form-control form-control-sm" onchange="updateTaskStatus('${t.id}', this.value)">`;
+            let statusSelect = `<select class="form-control form-control-sm" onchange="updateTaskStatusAndRefresh('${t.id}', this.value)">`;
             ["Pendiente", "En curso", "Finalizada", "Observada"].forEach(st => statusSelect += `<option value="${st}" ${t.status === st ? 'selected' : ''}>${st}</option>`);
             statusSelect += `</select>`;
 
@@ -490,14 +492,23 @@ function renderTasks() {
     });
 
     if (dayTasks.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding: 3rem; color: var(--text-secondary); font-style: italic;">No hay tareas programadas para esta fecha.</div>`;
+        container.innerHTML = `<div style="text-align:center; padding: 3rem; color: var(--text-secondary); font-style: italic;">No hay tareas pendientes para esta fecha.</div>`;
     }
     dInput.onchange = () => { selectedTasksDate = dInput.value; renderTasks(); };
 }
 
 function assignTaskResponsible(taskId, val) { const t = state.tasks.find(x => x.id === taskId); if (t) { t.responsibleId = val; saveState(); } }
-function updateTaskStatus(taskId, val) { const t = state.tasks.find(x => x.id === taskId); if (t) { t.status = val; saveState(); } }
 function updateTaskPriority(taskId, val) { const t = state.tasks.find(x => x.id === taskId); if (t) { t.priority = val; saveState(); renderTasks(); } }
+
+// FUNCIÓN AUXILIAR: Actualiza el estado y refresca la pantalla de inmediato para ocultar las finalizadas
+function updateTaskStatusAndRefresh(taskId, val) {
+    const t = state.tasks.find(x => x.id === taskId);
+    if (t) { 
+        t.status = val; 
+        saveState(); 
+        renderTasks(); 
+    }
+}
 
 function openTaskModal(id = '') {
     const modal = document.getElementById('modal-task');
