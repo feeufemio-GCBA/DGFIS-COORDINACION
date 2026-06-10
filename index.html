@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DGFIS - Coordinación y Seguimiento Operativo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">DG</div>
+                <div>
+                    <h1>DGFIS</h1>
+                    <p>Coordinación Operativa</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-tab="dashboard">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    Dashboard
+                </button>
+                <button class="nav-btn" data-tab="equipo">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Equipo
+                </button>
+                <button class="nav-btn" data-tab="calendario">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    Calendario
+                </button>
+                <button class="nav-btn" data-tab="coberturas">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h1"></path><rect x="7" y="3" width="14" height="11" rx="2" ry="2"></rect></svg>
+                    Coberturas
+                </button>
+                <button class="nav-btn" data-tab="tareas">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    Gestión de Tareas
+                </button>
+                <button class="nav-btn" data-tab="observaciones">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    Observaciones
+                </button>
+                <button class="nav-btn" data-tab="seguimiento">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    Seguimiento
+                </button>
+                <button class="nav-btn" data-tab="reportes">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    Reportes
+                </button>
+                <button class="nav-btn" data-tab="datos">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V15"></path><polyline points="17 8 12 13 7 8"></polyline><line x1="12" y1="13" x2="12" y2="1"></line></svg>
+                    Backup y Datos
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <span id="current-date-display">--/--/----</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            
+            <section id="tab-dashboard" class="tab-content active">
+                <div class="content-header">
+                    <h2>Dashboard Principal</h2>
+                    <p>Estado operativo en tiempo real</p>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-card"><div class="label">Presentes Hoy</div><div class="value text-green" id="dash-presentes">0</div></div>
+                    <div class="metric-card"><div class="label">Ausentes Hoy</div><div class="value text-red" id="dash-ausentes">0</div></div>
+                    <div class="metric-card"><div class="label">Coberturas Activas</div><div class="value text-blue" id="dash-coberturas">0</div></div>
+                    <div class="metric-card"><div class="label">Próximas Vacaciones</div><div class="value" id="dash-vacaciones">0</div></div>
+                    <div class="metric-card"><div class="label">Próximos Días de Estudio</div><div class="value text-cyan" id="dash-estudio">0</div></div>
+                    <div class="metric-card"><div class="label">Tareas Pendientes</div><div class="value text-yellow" id="dash-tareas">0</div></div>
+                    <div class="metric-card"><div class="label">Observaciones del Mes</div><div class="value" id="dash-observaciones">0</div></div>
+                </div>
+
+                <div class="dashboard-sections-grid">
+                    <div class="panel-card">
+                        <h3>Sugerencias de Cobertura para Hoy</h3>
+                        <div id="dashboard-cober-alerts" class="alerts-container"></div>
+                    </div>
+                    <div class="panel-card">
+                        <h3>Resumen Operativo de Hoy</h3>
+                        <div id="dashboard-summary-list" class="summary-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-equipo" class="tab-content">
+                <div class="content-header">
+                    <h2>Gestión de Personal</h2>
+                    <button class="btn btn-primary" onclick="openPersonModal()">+ Agregar Persona</button>
+                </div>
+                <div class="panel-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Equipo / Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-people-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tab-calendario" class="tab-content">
+                <div class="content-header">
+                    <h2>Calendario de Licencias y Novedades</h2>
+                    <div class="header-actions">
+                        <select id="cal-month-select" class="form-control" style="width: auto;"></select>
+                        <select id="cal-year-select" class="form-control" style="width: auto;"></select>
+                        <button class="btn btn-primary" onclick="openEventModal()">+ Cargar Evento</button>
+                    </div>
+                </div>
+                <div class="calendar-legend">
+                    <span class="legend-item"><span class="dot bg-blue"></span>Vacaciones</span>
+                    <span class="legend-item"><span class="dot bg-green"></span>Día de estudio</span>
+                    <span class="legend-item"><span class="dot bg-red"></span>Licencia</span>
+                    <span class="legend-item"><span class="dot bg-yellow"></span>Capacitación</span>
+                </div>
+                <div class="calendar-wrapper">
+                    <div class="calendar-days-header">
+                        <div>Dom</div><div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div>
+                    </div>
+                    <div id="calendar-grid" class="calendar-grid"></div>
+                </div>
+            </section>
+
+            <section id="tab-coberturas" class="tab-content">
+                <div class="content-header">
+                    <h2>Matriz de Coberturas Predefinidas</h2>
+                </div>
+                <div class="panel-card max-w-md">
+                    <p style="margin-bottom: 1rem; color: var(--text-secondary);">Define la persona que cubrirá a otra de forma sugerida por el sistema en caso de ausencia.</p>
+                    <div id="cober-matrix-inputs" class="stack-inputs"></div>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveCoverageMatrix()">Guardar Matriz</button>
+                </div>
+            </section>
+
+            <section id="tab-tareas" class="tab-content">
+                <div class="content-header">
+                    <h2>Flujo y Gestión de Tareas</h2>
+                    <div class="header-actions">
+                        <input type="date" id="tasks-date-filter" class="form-control" style="width: auto;">
+                        <button class="btn btn-primary" onclick="openTaskModal()">+ Crear Tarea Manual</button>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Descripción</th>
+                                    <th>Responsable</th>
+                                    <th>Prioridad</th>
+                                    <th>Estado</th>
+                                    <th>Origen</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-tasks-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-observaciones" class="tab-content">
+                <div class="content-header">
+                    <h2>Registro de Observaciones</h2>
+                    <button class="btn btn-primary" onclick="openObservationModal()">+ Agregar Observación</button>
+                </div>
+                <div class="panel-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Persona</th>
+                                <th>Observación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-obs-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="tab-seguimiento" class="tab-content">
+                <div class="content-header">
+                    <h2>Historial y Seguimiento</h2>
+                </div>
+                <div class="filter-bar panel-card" style="margin-bottom: 1.5rem;">
+                    <div class="filter-group">
+                        <label>Por Persona</label>
+                        <select id="seg-filter-person" class="form-control"><option value="">Todos</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Por Fecha Exacta</label>
+                        <input type="date" id="seg-filter-date" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>Por Mes</label>
+                        <input type="month" id="seg-filter-month" class="form-control">
+                    </div>
+                    <div class="filter-group alignment-end">
+                        <button class="btn btn-secondary" onclick="clearFilters()">Limpiar Filtros</button>
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <h3>Resultados del Historial</h3>
+                    <div class="table-responsive" style="margin-top: 1rem;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Tipo de Registro</th>
+                                    <th>Detalle / Descripción</th>
+                                    <th>Involucrado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-history-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-reportes" class="tab-content">
+                <div class="content-header">
+                    <h2>Reporte Mensual de Cumplimiento</h2>
+                    <div class="header-actions">
+                        <input type="month" id="report-month-filter" class="form-control" style="width: auto;">
+                    </div>
+                </div>
+                <div class="panel-card">
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Persona</th>
+                                    <th>Tareas Asignadas</th>
+                                    <th>Tareas Completadas</th>
+                                    <th>% Cumplimiento</th>
+                                    <th>Ausencias</th>
+                                    <th>Días de Estudio</th>
+                                    <th>Coberturas Realizadas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-reports-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tab-datos" class="tab-content">
+                <div class="content-header">
+                    <h2>Respaldos y Portabilidad de Información</h2>
+                </div>
+                <div class="panel-card max-w-md">
+                    <h3>Acciones de Backup</h3>
+                    <p style="color: var(--text-secondary); margin: 0.5rem 0 1.5rem 0;">Exporta tus datos locales para salvaguardar tu información o importá un archivo de respaldo previo.</p>
+                    <div class="backup-actions-layout">
+                        <button class="btn btn-secondary" onclick="exportJSON()">Exportar a JSON</button>
+                        <button class="btn btn-secondary" onclick="exportCSV()">Exportar Tareas a CSV</button>
+                        <div class="import-zone">
+                            <label class="btn btn-primary" style="display: inline-block; cursor: pointer;">
+                                Importar JSON
+                                <input type="file" id="import-json-file" accept=".json" style="display: none;" onchange="importJSON(event)">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-person" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="person-modal-title">Agregar Persona</h3>
+            <input type="hidden" id="person-id">
+            <div class="form-group" style="margin-top:1rem;">
+                <label>Nombre</label>
+                <input type="text" id="person-name" class="form-control" placeholder="Ej. Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label>Equipo / Área</label>
+                <select id="person-team" class="form-control">
+                    <option value="DATOS Y REPORTING">DATOS Y REPORTING</option>
+                    <option value="PLANIFICACIÓN">PLANIFICACIÓN</option>
+                    <option value="ANÁLISIS Y GESTIÓN">ANÁLISIS Y GESTIÓN</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-person')">Cancelar</button>
+                <button class="btn btn-primary" onclick="savePersonForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-event" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="event-modal-title">Cargar Evento en Calendario</h3>
+            <input type="hidden" id="event-id">
+            <div class="form-group" style="margin-top:1rem;">
+                <label>Persona</label>
+                <select id="event-person" class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label>Tipo de Evento</label>
+                <select id="event-type" class="form-control">
+                    <option value="Vacaciones">Vacaciones</option>
+                    <option value="Día de estudio">Día de estudio</option>
+                    <option value="Licencia">Licencia</option>
+                    <option value="Capacitación">Capacitación</option>
+                </select>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Fecha Inicio</label>
+                    <input type="date" id="event-start" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Fecha Fin</label>
+                    <input type="date" id="event-end" class="form-control">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Observaciones</label>
+                <textarea id="event-obs" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger id-delete-btn" id="btn-del-event" style="display:none;" onclick="deleteEventClick()">Eliminar</button>
+                <button class="btn btn-secondary" onclick="closeModal('modal-event')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveEventForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-task" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="task-modal-title">Gestión de Tarea</h3>
+            <input type="hidden" id="task-id">
+            <div class="form-group" style="margin-top:1rem;">
+                <label>Descripción de la Tarea</label>
+                <input type="text" id="task-desc" class="form-control" placeholder="Ej. Realizar conciliación de folios">
+            </div>
+            <div class="form-group">
+                <label>Responsable</label>
+                <select id="task-responsible" class="form-control"></select>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Prioridad</label>
+                    <select id="task-priority" class="form-control">
+                        <option value="Baja">Baja</option>
+                        <option value="Media">Media</option>
+                        <option value="Alta">Alta</option>
+                        <option value="Urgente">Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="task-status" class="form-control">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En curso">En curso</option>
+                        <option value="Finalizada">Finalizada</option>
+                        <option value="Observada">Observada</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Fecha Planificada</label>
+                <input type="date" id="task-date" class="form-control">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-task')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveTaskForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-observation" class="modal-overlay">
+        <div class="modal-box">
+            <h3 id="obs-modal-title">Agregar Observación</h3>
+            <input type="hidden" id="obs-id">
+            <div class="form-group" style="margin-top:1rem;">
+                <label>Fecha</label>
+                <input type="date" id="obs-date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Persona Asociada</label>
+                <select id="obs-person" class="form-control"></select>
+            </div>
+            <div class="form-group">
+                <label>Observación anotada</label>
+                <textarea id="obs-text" class="form-control" rows="3" placeholder="Ej. Presentó demoras justificadas por caída de red central."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('modal-observation')">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveObservationForm()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
