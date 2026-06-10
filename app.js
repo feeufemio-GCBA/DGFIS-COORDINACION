@@ -8,8 +8,8 @@ const DEFAULT_STATE = {
     ],
     events: [],
     coverageMatrix: {
-        "p1": "p2", // Zoe covers Fausto
-        "p2": "p1"  // Fausto covers Zoe
+        "p1": "p2", // Zoe cubre a Fausto
+        "p2": "p1"  // Fausto cubre a Zoe
     },
     confirmedCoverages: {}, // Key: YYYY-MM-DD_absentId -> covererId
     tasks: [],
@@ -73,44 +73,89 @@ function triggerTabRender(tabName) {
     if (tabName === 'reportes') renderReports();
 }
 
-// Automatic Recurrent Tasks Automator Engine
+// Automatic Recurrent Tasks Automator Engine - ACTUALIZADO 2026
 function runDailyRecurrentTasksAutomation(dateStr) {
-    if (state.generatedDates[dateStr]) return; // Stop duplication loops
+    if (state.generatedDates[dateStr]) return; // Detiene bucles de duplicación
     
     const dayName = getDayNameEs(dateStr);
     const generated = [];
 
+    // Validamos que sea un día laboral (Lunes a Viernes)
+    const diasLaborales = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
+    if (!diasLaborales.includes(dayName)) return;
+
     state.people.forEach(person => {
-        // Area: Datos y Reporting
+        // --- ÁREA: DATOS Y REPORTING ---
         if (person.team === "DATOS Y REPORTING") {
             if (dayName === "LUNES") {
-                generated.push("CABLEADO", "EXPEDIENTES LEGALES – ORDENAMIENTO", "ACTUALIZAR SLA - CONTROL PENDIENTES", "AUDITORÍA ORDENAMIENTO", "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO");
+                generated.push(
+                    "CABLEADO", 
+                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
+                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
+                    "AUDITORÍA ORDENAMIENTO", 
+                    "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO"
+                );
             } else if (dayName === "MARTES") {
-                generated.push("ACTUALIZAR SLA - CONTROL PENDIENTES", "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", "ACTUALIZACIÓN NUEVA COBERTURA", "PENDIENTES ORDENAMIENTO", "ENVIAR PENDIENTES A ORDENAMIENTO");
+                generated.push(
+                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
+                    "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", 
+                    "ACTUALIZACIÓN NUEVA COBERTURA", 
+                    "PENDIENTES ORDENAMIENTO", 
+                    "ENVIAR PENDIENTES A ORDENAMIENTO ( LO QUE SE PLANIFICO EL VIERNES Y MIERCOLES)"
+                );
             } else if (dayName === "MIÉRCOLES") {
-                generated.push("CABLEADO", "EXPEDIENTES LEGALES – ORDENAMIENTO", "REVISION DE DRIVES", "REPORTE SEMANAL");
+                generated.push(
+                    "CABLEADO", 
+                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
+                    "REVISION DE DRIVES", 
+                    "REPORTE SEMANAL"
+                );
             } else if (dayName === "JUEVES") {
-                generated.push("ACTUALIZAR SLA - CONTROL PENDIENTES", "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", "PENDIENTES ORDENAMIENTO", "BASE GOIEP SEMANAL", "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO", "ENVIAR PENDIENTES A ORDENAMIENTO");
+                generated.push(
+                    "ACTUALIZAR SLA - CONTROL PENDIENTES", 
+                    "ACTUALIZACION AVANCE DE PENDIENTES VERI-RESO", 
+                    "PENDIENTES ORDENAMIENTO", 
+                    "BASE GOIEP SEMANAL", 
+                    "ACTUALIZAR SEGUIMIENTO ORDENAMIENTO", 
+                    "ENVIAR PENDIENTES A ORDENAMIENTO (LO QUE SE PLANIFICO EL LUNES)"
+                );
             } else if (dayName === "VIERNES") {
-                generated.push("CABLEADO", "EXPEDIENTES LEGALES – ORDENAMIENTO", "COLUMNAS Y POSTE EXPEDIENTE", "COBERTURA CABLEADO", "COBERTURA DE EXPEDIENTES");
+                generated.push(
+                    "CABLEADO", 
+                    "EXPEDIENTES LEGALES – ORDENAMIENTO", 
+                    "COLUMNAS Y POSTE EXPEDIENTE", 
+                    "COBERTURA CABLEADO (ENVIO POR WHATSSAP)", 
+                    "COBERTURA DE EXPEDIENTES"
+                );
             }
         }
         
-        // Area: Análisis y Gestión (Marina default matching rules)
-        if (person.team === "ANÁLISIS Y GESTIÓN" && person.name.toUpperCase() === "MARINA") {
-            generated.push("BAJADAS 2026", "CUCC", "ACTUALIZAR BACKOFFICE MAÑANA", "ACTUALIZAR BACKOFFICE TARDE");
+        // --- ÁREA: ANÁLISIS Y GESTIÓN (Lunes a Viernes las mismas 4 tareas) ---
+        if (person.team === "ANÁLISIS Y GESTIÓN") {
+            generated.push(
+                "BAJADAS 2026", 
+                "CUCC", 
+                "ACTUALIZAR BACKOFFICE MAÑANA", 
+                "ACTUALIZAR BACKOFFICE TARDE"
+            );
         }
 
-        // Area: Planificación (Marcelo default matching rules)
-        if (person.team === "PLANIFICACIÓN" && person.name.toUpperCase() === "MARCELO") {
-            generated.push("PLANIFICACIÓN ÁREAS GASTRONÓMICAS");
+        // --- ÁREA: PLANIFICACIÓN ---
+        if (person.team === "PLANIFICACIÓN") {
             if (["LUNES", "MIÉRCOLES", "VIERNES"].includes(dayName)) {
-                generated.push("PLANIFICACIÓN ORDENAMIENTO");
+                generated.push(
+                    "PLANIFICACIÓN ÁREAS GASTRONÓMICAS", 
+                    "PLANIFICACION ORDENAMIENTO"
+                );
+            } else if (["MARTES", "JUEVES"].includes(dayName)) {
+                generated.push(
+                    "PLANIFICACIÓN ÁREAS GASTRONÓMICAS"
+                );
             }
         }
     });
 
-    // Strip out duplicate strings arrays maps and inject records
+    // Filtramos duplicados por si hay más de una persona en la misma área
     const uniqueTasks = [...new Set(generated)];
     uniqueTasks.forEach(desc => {
         state.tasks.push({
@@ -183,7 +228,7 @@ function renderDashboard() {
                     <div class="alert-box">
                         <div>
                             <strong>Ausencia Detectada:</strong> ${p.name} requiere cobertura hoy por ${absenceEvent.type}. 
-                            <br><small>Sugerencia del sistema: Cobertura por <strong>${suggestName}</strong></small>
+                            <br><small>Sugerencia del sistema: Cobertura por <strong>${suggestedName}</strong></small>
                         </div>
                         <div style="display:flex; gap:0.5rem; margin-left:1rem;">
                             <button class="btn btn-primary btn-sm" onclick="confirmSystemCoverage('${today}', '${p.id}', '${suggestedId}')">Confirmar</button>
@@ -409,73 +454,6 @@ function renderCalendar() {
     }
 }
 
-function openEventModal(id = '') {
-    const modal = document.getElementById('modal-event');
-    const pSel = document.getElementById('event-person');
-    
-    pSel.innerHTML = '';
-    state.people.forEach(p => pSel.add(new Option(p.name, p.id)));
-
-    if (id) {
-        document.getElementById('event-modal-title').innerText = "Editar Evento";
-        document.getElementById('btn-del-event').style.display = 'inline-block';
-        const ev = state.events.find(x => x.id === id);
-        document.getElementById('event-id').value = ev.id;
-        document.getElementById('event-person').value = ev.personId;
-        document.getElementById('event-type').value = ev.type;
-        document.getElementById('event-start').value = ev.startDate;
-        document.getElementById('event-end').value = ev.endDate;
-        document.getElementById('event-obs').value = ev.observations || '';
-    } else {
-        document.getElementById('event-modal-title').innerText = "Cargar Evento";
-        document.getElementById('btn-del-event').style.display = 'none';
-        document.getElementById('event-id').value = '';
-        document.getElementById('event-start').value = getTodayStr();
-        document.getElementById('event-end').value = getTodayStr();
-        document.getElementById('event-obs').value = '';
-    }
-    modal.classList.add('active');
-}
-
-function saveEventForm() {
-    const id = document.getElementById('event-id').value;
-    const personId = document.getElementById('event-person').value;
-    const type = document.getElementById('event-type').value;
-    const startDate = document.getElementById('event-start').value;
-    const endDate = document.getElementById('event-end').value;
-    const observations = document.getElementById('event-obs').value.trim();
-
-    if (!personId || !startDate || !endDate) { alert("Complete los campos requeridos"); return; }
-    if (startDate > endDate) { alert("La fecha de inicio no puede ser posterior a la fecha de fin"); return; }
-
-    if (id) {
-        const ev = state.events.find(x => x.id === id);
-        ev.personId = personId;
-        ev.type = type;
-        ev.startDate = startDate;
-        ev.endDate = endDate;
-        ev.observations = observations;
-    } else {
-        state.events.push({
-            id: 'ev_' + Math.random().toString(36).substr(2, 9),
-            personId, type, startDate, endDate, observations
-        });
-    }
-    saveState();
-    closeModal('modal-event');
-    renderCalendar();
-}
-
-function deleteEventClick() {
-    const id = document.getElementById('event-id').value;
-    if (id && confirm("¿Eliminar este registro del calendario?")) {
-        state.events = state.events.filter(x => x.id !== id);
-        saveState();
-        closeModal('modal-event');
-        renderCalendar();
-    }
-}
-
 // Configurable Sugested Coverage Matrix Configuration Views
 function renderCoverageMatrixTab() {
     const container = document.getElementById('cober-matrix-inputs');
@@ -639,6 +617,73 @@ function deleteTask(id) {
     }
 }
 
+function openEventModal(id = '') {
+    const modal = document.getElementById('modal-event');
+    const pSel = document.getElementById('event-person');
+    
+    pSel.innerHTML = '';
+    state.people.forEach(p => pSel.add(new Option(p.name, p.id)));
+
+    if (id) {
+        document.getElementById('event-modal-title').innerText = "Editar Evento";
+        document.getElementById('btn-del-event').style.display = 'inline-block';
+        const ev = state.events.find(x => x.id === id);
+        document.getElementById('event-id').value = ev.id;
+        document.getElementById('event-person').value = ev.personId;
+        document.getElementById('event-type').value = ev.type;
+        document.getElementById('event-start').value = ev.startDate;
+        document.getElementById('event-end').value = ev.endDate;
+        document.getElementById('event-obs').value = ev.observations || '';
+    } else {
+        document.getElementById('event-modal-title').innerText = "Cargar Evento";
+        document.getElementById('btn-del-event').style.display = 'none';
+        document.getElementById('event-id').value = '';
+        document.getElementById('event-start').value = getTodayStr();
+        document.getElementById('event-end').value = getTodayStr();
+        document.getElementById('event-obs').value = '';
+    }
+    modal.classList.add('active');
+}
+
+function saveEventForm() {
+    const id = document.getElementById('event-id').value;
+    const personId = document.getElementById('event-person').value;
+    const type = document.getElementById('event-type').value;
+    const startDate = document.getElementById('event-start').value;
+    const endDate = document.getElementById('event-end').value;
+    const observations = document.getElementById('event-obs').value.trim();
+
+    if (!personId || !startDate || !endDate) { alert("Complete los campos requeridos"); return; }
+    if (startDate > endDate) { alert("La fecha de inicio no puede ser posterior a la fecha de fin"); return; }
+
+    if (id) {
+        const ev = state.events.find(x => x.id === id);
+        ev.personId = personId;
+        ev.type = type;
+        ev.startDate = startDate;
+        ev.endDate = endDate;
+        ev.observations = observations;
+    } else {
+        state.events.push({
+            id: 'ev_' + Math.random().toString(36).substr(2, 9),
+            personId, type, startDate, endDate, observations
+        });
+    }
+    saveState();
+    closeModal('modal-event');
+    renderCalendar();
+}
+
+function deleteEventClick() {
+    const id = document.getElementById('event-id').value;
+    if (id && confirm("¿Eliminar este registro del calendario?")) {
+        state.events = state.events.filter(x => x.id !== id);
+        saveState();
+        closeModal('modal-event');
+        renderCalendar();
+    }
+}
+
 // Observations Engine Feature Layout
 function renderObservations() {
     const tbody = document.getElementById('table-obs-body');
@@ -790,7 +835,7 @@ function renderReports() {
         const monthTasks = state.tasks.filter(t => t.responsibleId === p.id && t.date.substring(0, 7) === targetMonth);
         const totalAssigned = monthTasks.length;
         const totalCompleted = monthTasks.filter(t => t.status === "Finalizada").length;
-        const compliancePct = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 180) / 1.8 : 0; // standard safety parsing math round rules
+        const compliancePct = totalAssigned > 0 ? Math.round((totalCompleted / totalAssigned) * 100) : 0;
 
         // Count calendar incidents matches
         const absences = state.events.filter(e => e.personId === p.id && ["Vacaciones", "Licencia"].includes(e.type) && e.startDate.substring(0, 7) === targetMonth).length;
